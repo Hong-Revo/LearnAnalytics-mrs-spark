@@ -26,6 +26,13 @@ rxHadoopCommand("fs -cat /NYCTaxi/sample/taxi_large.csv | head")
 
 ```
 
+Let's also download the sample data that we can work with locally.
+
+```{r download_sample}
+taxi_url <- "http://alizaidi.blob.core.windows.net/training/trainingData/manhattan_df.rds"
+taxi_df  <- readRDS(gzcon(url(taxi_url)))
+(taxi_df <- tbl_df(taxi_df))
+```
 
 
 # Import Data
