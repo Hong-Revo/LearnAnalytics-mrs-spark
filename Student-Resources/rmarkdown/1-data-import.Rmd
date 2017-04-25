@@ -2,10 +2,28 @@
 
 The `sparklyr` package has a handy function for creating a Spark context. This differs from the method that is used by the `SparkR` package.
 
+
+Let's create our Spark Session. In this code, we will design our Spark Session using Microsoft's Spark Session. 
+
 ```{r spark_context}
 
 library(sparklyr)
-sc <- spark_connect(master = "yarn-client")
+library(dplyr)
+
+conf <- spark_config()
+conf$'sparklyr.shell.executor-memory' <- "1g"
+conf$'sparklyr.shell.driver-memory' <- "1g"
+conf$spark.executor.cores <- 3
+conf$spark.executor.memory <- "12G"
+conf$spark.yarn.am.cores  <- 1
+conf$spark.yarn.am.memory <- "1G"
+conf$spark.dynamicAllocation.enabled <- "false"
+
+## our cluser has 2 D13V2, 50 gigs and 15 cores
+## Let's try: 4 executors per node (8 total), 12 gigs each, and 3 cores each
+## overhead = 10 gigs
+
+sc <- spark_connect(master = "yarn-client", config = conf)
 
 ```
 
