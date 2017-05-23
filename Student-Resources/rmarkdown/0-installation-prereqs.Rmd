@@ -6,7 +6,7 @@ Before we install the packages, let's make sure we are pulling from a recent mir
 
 r <- getOption('repos')
 # set mirror to something a bit more recent
-r["CRAN"] <- "https://mran.revolutionanalytics.com/snapshot/2016-12-19/"
+r["CRAN"] <- "https://mran.revolutionanalytics.com/snapshot/2017-05-19/"
 options(repos = r)
 
 
@@ -21,7 +21,8 @@ We'll install some familiar packages
 
 install.packages('magrittr')
 install.packages('ggplot2')
-
+install.packages('rmarkdown')
+install.packages('knitr')
 
 ```
 
