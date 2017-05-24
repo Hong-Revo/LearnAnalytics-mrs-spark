@@ -1,3 +1,13 @@
+---
+title: "Exploratory Data Analysis with Sparklyr and Spark SQL"
+output: 
+  html_notebook:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
 
 # Add Tip Column
 
@@ -7,7 +17,7 @@ The `sparklyr` package can be used in conjuction with the `dplyr` package. It ba
 library(dplyr)
 class(taxi)
 sample_taxi <- mutate(taxi, tip_pct = tip_amount/fare_amount)
-
+explain(sample_taxi)
 ```
 
 Same exact syntax as before, but this time, all computation takes place in Spark.

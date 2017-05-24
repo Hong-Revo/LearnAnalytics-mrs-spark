@@ -11,10 +11,11 @@ editor_options:
 
 # Create Spark Context
 
-In this session we will create a Spark Session using the `rxSparkConnect` function from the `RevoScaleR` package. This will a `scaleR` Spark Session and create some additional necessary paths for us.
+In this session we will create a Spark Session using the `rxSparkConnect` function from the `RevoScaleR` package. This will a `scaleR` Spark Session and create some additional necessary paths for us. We can use the `RxHiveData` method to point to data that is in our Hive metastore. Moreover, we can run MRS functions directly against the Hive data.
 
 ```{r spark_context}
 
+Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
 cc <- rxSparkConnect()
 hive_tbl <- RxHiveData(table = "hivesampletable",
                        colInfo = list(clientid = list(type = "integer"),
@@ -25,6 +26,36 @@ rxGetInfo(hive_tbl, getVarInfo = TRUE)
 rxSummary(~querydwelltime, data = hive_tbl)
 rxSparkDisconnect()
 ```
+
+
+## Adding `sparklyr` interoperability
+
+We can next use the `interop` parameter to create a Spark session that can be shared by `sparklyr`.
+
+```{r interop}
+
+library(sparklyr)
+library(dplyr)
+cc <- rxSparkConnect(interop = "sparklyr",
+                     consoleOutput = TRUE)
+sc <- rxGetSparklyrConnection(cc)
+
+src_tbls(sc)
+sample_tbl <- tbl(sc, "hivesampletable")
+
+```
+
+Now we can use our favorite `dplyr` methods with Spark SQL to query our Spark DataFrames and Hive catalog.
+
+```{r hive_query}
+ave_dwell <- sample_tbl %>% 
+  group_by(deviceplatform) %>% 
+  summarise(avedwell = mean(querydwelltime),
+            numclients = n_distinct(clientid))
+ave_dwell %>% collect
+```
+
+
 
 # Download Sample Data 
 
