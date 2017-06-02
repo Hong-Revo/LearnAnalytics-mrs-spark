@@ -1,31 +1,61 @@
+---
+title: "Creating Spark Sessions"
+output: 
+  html_notebook:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
 # Create Spark Context
 
-The `sparklyr` package has a handy function for creating a Spark context. This differs from the method that is used by the `SparkR` package.
-
-
-Let's create our Spark Session. In this code, we will design our Spark Session using Microsoft's Spark Session. 
+In this session we will create a Spark Session using the `rxSparkConnect` function from the `RevoScaleR` package. This will a `scaleR` Spark Session and create some additional necessary paths for us. We can use the `RxHiveData` method to point to data that is in our Hive metastore. Moreover, we can run MRS functions directly against the Hive data.
 
 ```{r spark_context}
 
+Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
+cc <- rxSparkConnect()
+hive_tbl <- RxHiveData(table = "hivesampletable",
+                       colInfo = list(clientid = list(type = "integer"),
+                                      querytime = list(type = "character"),
+                                      market = list(type = "factor"),
+                                      deviceplatform = list(type = "factor")))
+rxGetInfo(hive_tbl, getVarInfo = TRUE)
+rxSummary(~querydwelltime, data = hive_tbl)
+rxSparkDisconnect()
+```
+
+
+## Adding `sparklyr` interoperability
+
+We can next use the `interop` parameter to create a Spark session that can be shared by `sparklyr`.
+
+```{r interop}
+
 library(sparklyr)
 library(dplyr)
+cc <- rxSparkConnect(interop = "sparklyr",
+                     consoleOutput = TRUE)
+sc <- rxGetSparklyrConnection(cc)
 
-conf <- spark_config()
-conf$'sparklyr.shell.executor-memory' <- "1g"
-conf$'sparklyr.shell.driver-memory' <- "1g"
-conf$spark.executor.cores <- 3
-conf$spark.executor.memory <- "12G"
-conf$spark.yarn.am.cores  <- 1
-conf$spark.yarn.am.memory <- "1G"
-conf$spark.dynamicAllocation.enabled <- "false"
-
-## our cluser has 2 D13V2, 50 gigs and 15 cores
-## Let's try: 4 executors per node (8 total), 12 gigs each, and 3 cores each
-## overhead = 10 gigs
-
-sc <- spark_connect(master = "yarn-client", config = conf)
+src_tbls(sc)
+sample_tbl <- tbl(sc, "hivesampletable")
 
 ```
+
+Now we can use our favorite `dplyr` methods with Spark SQL to query our Spark DataFrames and Hive catalog.
+
+```{r hive_query}
+ave_dwell <- sample_tbl %>% 
+  group_by(deviceplatform) %>% 
+  summarise(avedwell = mean(querydwelltime),
+            numclients = n_distinct(clientid))
+ave_dwell %>% collect
+```
+
+
 
 # Download Sample Data 
 
