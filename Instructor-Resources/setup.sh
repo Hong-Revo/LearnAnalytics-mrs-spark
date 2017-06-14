@@ -23,6 +23,9 @@ cd /home/sshuser
 git clone https://github.com/Azure/SparkMLADS
 chown -R sshuser:sshuser SparkMLADS
 
+git clone https://github.com/Azure/LearnAnalytics-mrs-spark.git
+chown -R sshuser:sshuser LearnAnalytics-mrs-spark
+
 mkdir /var/RevoShare/sshuser
 chown sshuser:sshuser /var/RevoShare/sshuser
 
@@ -36,7 +39,7 @@ hdfs dfs -mkdir hdfs://mycluster/share
 hdfs dfs -copyFromLocal Air2009to2012CSV hdfs://mycluster/share
 hdfs dfs -copyFromLocal Weather hdfs://mycluster/share
 
-Revo64 -e 'install.packages(c("sparklyr", "ggplot2", "tidyr"), repos = "https://mran.microsoft.com/snapshot/2017-05-01")'
+Revo64 -e 'install.packages(c("sparklyr", "rmarkdown", "knitr", "plotly", "ggplot2", "tidyr"), repos = "https://mran.microsoft.com/snapshot/2017-06-01")'
 
 # update rstudio-server
 
