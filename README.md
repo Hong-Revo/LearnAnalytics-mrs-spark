@@ -2,7 +2,7 @@
 
 This is a one-day workshop on Using R Server on Spark. Student can find course modules as rmarkdown documents in the [Student-Resources]() directory. Instructions on how to deliver the course can be found in the [Instructor-Resources]() directory.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FSparkMLADS%2Fmaster%2Fazure-templates%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FLearnAnalytics-mrs-spark%2Fmaster%2FInstructor-Resources%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
