@@ -16,12 +16,14 @@
 		},
 		"clusterLoginPassword": {
 			"type": "securestring",
+      "defaultValue": "admin",
 			"metadata": {
 				"description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
 			}
 		},
 		"sshUserName": {
 			"type": "string",
+      "defaultValue": "sshuser",
 			"metadata": {
 				"description": "These credentials can be used to remotely access the cluster."
 			}
@@ -114,9 +116,9 @@
             },
             {
               "name": "workernode",
-              "targetInstanceCount": 4,
+              "targetInstanceCount": 2,
               "hardwareProfile": {
-                "vmSize": "Standard_D4_v2"
+                "vmSize": "Standard_D13_v2"
               },
               "osProfile": {
                 "linuxOperatingSystemProfile": {
