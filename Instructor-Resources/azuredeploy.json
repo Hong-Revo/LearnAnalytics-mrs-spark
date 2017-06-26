@@ -60,7 +60,7 @@
       "apiVersion": "2015-03-01-preview",
       "dependsOn": [ "[concat('Microsoft.Storage/storageAccounts/',variables('defaultStorageAccount').name)]" ],
       "properties": {
-        "clusterVersion": "3.5",
+        "clusterVersion": "3.6",
         "osType": "Linux",
         "tier": "standard",
         "clusterDefinition": {
@@ -100,19 +100,6 @@
                   "password": "[parameters('sshPassword')]"
                 }
               },
-              "scriptActions": [
-                  {
-                      "name": "Upgrade MRS",
-                      "uri": "https://mrseagle.blob.core.windows.net/share/update901.sh",
-                      "parameters": "",
-                      "isHeadNode": true,
-                      "isWorkerNode": true,
-                      "isPersisted": true,
-                      "isZookeeperNode": false,
-                      "isEdgeNode": true,
-                      "applicationName": null
-                  }
-              ]
             },
             {
               "name": "workernode",
