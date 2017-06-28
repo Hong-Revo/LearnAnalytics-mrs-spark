@@ -1,4 +1,16 @@
-# Machine Learning Pipelines with Spark 
+---
+title: "Machine Learning Pipelines with Sparklyr and Spark ML"
+output: 
+  html_notebook:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+# Training Machine Learning Algorithms with Sparklyr
 
 Since Spark 1.3, there has been much interest in creating a simple, interactive machine learning pipeline that represents a full data science application from start to end. The `mllib` package was created to address this need.
 
@@ -86,11 +98,12 @@ Train a tree model
 
 ```{r train_tree}
 
+system.time(
 fit_dtree <- partitions$training %>% 
   ml_decision_tree(response = "good_tip", 
                    features = c("payment_type", "passenger_count", "trip_distance"), 
                    type = "classification")
-
+)
 
 ```
 
@@ -106,14 +119,14 @@ That was for a single tree. Let's try to train a ensemble tree using the random 
 
 ```{r forest}
 
-
-fit_dforest <- partitions$training %>% 
+system.time(
+  fit_dforest <- partitions$training %>% 
   ml_random_forest(response = "good_tip", 
                    features = c("payment_type", "passenger_count", "trip_distance"), 
                    type = "classification")
+)
 
 score_dforest <- sdf_predict(fit_dforest, partitions$test)
-
 
 ```
 
@@ -129,19 +142,18 @@ If we want to work entirely with Spark DataFrames, we can use the `sdf_predict` 
 
 sdf_conf_df <- function(predictions = score_dtree) {
   
-  
   conf_sdf <- predictions %>% group_by(prediction, good_tip) %>% tally()
   
   return(conf_sdf)
   
 }
 
-sdf_conf_df()
-library(tidyr)
+dtree_conf_df <- sdf_conf_df() %>% collect
 
+library(tidyr)
 conf_spread <- . %>% spread(key = "good_tip", value  = "n")
 
-dtree_conf <- sdf_conf_df() %>% collect %>% conf_spread
+dtree_conf <- dtree_conf_df %>% conf_spread
 
 # create ratios for confusion matrix
 dtree_conf <- dtree_conf[, 2:3]
@@ -151,6 +163,7 @@ dtree_conf/sum(dtree_conf)
 
 ## Using the Spark ML Model Metric Functions
 
+We can use the SparkML evaluation module to calculate evaluation metrics directly from our scored data.
 
 ```{r sparkml_metrics}
 
@@ -163,9 +176,9 @@ dforest_auc <- ml_binary_classification_eval(predicted_tbl_spark = score_dforest
 
 dforest_accuracy <- ml_classification_eval(predicted_tbl_spark = score_dforest, label = "good_tip", predicted_lbl = "prediction", metric = "accuracy")
 
-dtree_auc
-dforest_auc
-dforest_accuracy
+sprintf("The AUC for the decision tree is %s", dtree_auc)
+sprintf("The AUC for the random forest is %s", dforest_auc)
+sprintf("The accuracy of the random forest is %s", dforest_accuracy)
 
 ```
 

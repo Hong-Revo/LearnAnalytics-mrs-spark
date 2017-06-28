@@ -1,0 +1,27 @@
+
+# Predict on New Data -----------------------------------------------------
+
+```{r}
+rxPredict(dtree, taxi_test, outData = file.path(data_path, "treeScored"))
+
+rxPredict(linmod, taxi, outData = file.path(data_path, "linmodScored"))
+
+```
+
+
+
+# Save Models to HDFS -----------------------------------------------------
+
+```{r}
+save(dtree, linmod, file = "models.RData")
+
+```
+
+
+# Save RLib ---------------------------------------------------------------
+
+```{r}
+rxHadoopCopyFromLocal(.libPaths()[1], file.path(data_path, "/Rlib"))
+
+```
+

@@ -18,7 +18,7 @@
 3. After closing and restarting R, install `IRKernel` from GitHub
 
 	```R
-	devtools::install_github('IRkernel/IRkernel', 'hrbrmstr/hrbrthemes', 'hrbrmstr/ggalt')
+	devtools::install_github('IRkernel/IRkernel')
 	```
 
  

@@ -1,3 +1,15 @@
+---
+title: "Using Microsoft R Server for Machine Learning and Modeling"
+output: 
+  html_notebook:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+
 # Modeling with RxSpark
 
 This section shows how to use the `RxSpark` compute context for modeling.
@@ -14,88 +26,59 @@ data_path <- file.path("/user/RevoShare", username)
 
 ```
 
-# Saving the Spark DataFrame to CSV
+# Saving the Spark DataFrame to Parquet File
 
-The `RxSpark` and the Spark Compute contexts are completely distinct compute environments. In order to use the `rx` functions, we need to move the Spark DataFrame into a format that MRS can understand.
+We will write our Spark DataFrame out to a Parquet file. The other alternative is to save it to persist it in our Hive catalog using `sdf_register`.
 
 ## Write Sample Taxi to RevoShare 
 
-```{r save_csv}
+```{r save_parquet}
 
 library(sparklyr)
-spark_write_csv(taxi_binary, 
-                path = file.path(data_path, 'sampleTaxi'))
+spark_write_parquet(taxi_binary,
+                    path = file.path(data_path, 'TaxiParquet'))
 
 
 ```
-
-Shut down the `sparklyr` application:
-
-```{r spark_disconnect}
-spark_disconnect(sc)
-
-```
-
 
 ## Remove SUCCESS dir
 
+Hadoop is very proud of itself for successfully writing out the Parquet file above. While running, it keeps a file called `_RUNNING` in it's data directory, and upon completion it writes out a file called `_SUCCESS`. While we are proud of Hadoop as well, we don't want this file in our data directory upon import, so we'll trash it.
+
 ```{r remove_success}
 
-rxHadoopListFiles(file.path(data_path, "sampleTaxi"))
+rxHadoopListFiles(file.path(data_path, "TaxiParquet"))
 file_to_delete <- file.path(data_path, 
-                            "sampleTaxi", "_SUCCESS")
+                            "TaxiParquet", "_SUCCESS")
 delete_command <- paste("fs -rm", file_to_delete)
 rxHadoopCommand(delete_command)
-
+rxHadoopListFiles(file.path(data_path, "TaxiParquet"))
 
 ```
 
 
-# Create HDFS and Spark Contexts for Revo
+# Create HDFS and Spark Contexts for MRS
 
-Let's create the pointers to the file paths and HDFS to use the `RxSpark` compute context.
+Let's create the pointers to the file paths and HDFS to use with the `RxSpark` compute context.
 
 ```{r hdfs_pointers}
 
-myNameNode <- "default"
-myPort <- 0
-hdfsFS <- RxHdfsFileSystem(hostName = myNameNode, 
-                           port = myPort)
+hdfsFS <- RxHdfsFileSystem()
 
-taxi_text <- RxTextData(file.path(data_path,
-                                  "sampleTaxi"),
-                        fileSystem = hdfsFS)
+taxi_text <- RxParquetData(file.path(data_path,
+                                  "TaxiParquet"),
+                           fileSystem = hdfsFS)
 
-taxi_xdf <- RxXdfData(file.path(data_path, "taxiXdf"),
+taxi_xdf <- RxXdfData(file.path(data_path, "TaxiXdfds"),
                       fileSystem = hdfsFS)
 
 
 ```
 
 
-# create RxSpark compute context
-
-```{r rx_spark_context}
-
-
-computeContext <- RxSpark(consoleOutput=TRUE,
-                          nameNode=myNameNode,
-                          port=myPort,
-                          executorCores=6, 
-                          executorMem = "14g", 
-                          executorOverheadMem = "7g", 
-                          persistentRun = TRUE, 
-                          extraSparkConfig = "--conf spark.speculation=true")
-
-rxSetComputeContext(computeContext)
-
-
-
-```
-
 ## Import to XDF
 
-Now we use our `rxImport` function to import the csv into an xdf.
+Now we use our `rxImport` function to import the parquet file into an xdf.
 
 ```{r csv_import_xdf}
 
@@ -110,7 +93,7 @@ col_classes <- c('VendorID' = "factor",
                  'tip_amount' = "numeric",
                  'tolls_amount' = "numeric",
                  'pickup_hour' = "factor",
-                 'pickup_dow' = "factor", 
+                 'pickup_dow' = "factor",
                  'dropoff_hour' = "factor",
                  'dropoff_dow' = "factor",
                  'pickup_nhood' = "factor",
@@ -119,7 +102,7 @@ col_classes <- c('VendorID' = "factor",
                  'tip_pct' = "numeric",
                  'good_tip' = "factor")
 
-rxImport(inData = taxi_text, taxi_xdf, overwrite = TRUE, colClasses = col_classes)
+rxImport(inData = taxi_text, taxi_xdf, colClasses = col_classes)
 rxGetInfo(taxi_xdf, getVarInfo = TRUE)
 
 
@@ -151,44 +134,110 @@ Let's predict tip_pct as a function of distance and neighborhoods. In order to e
 
 ```{r rx_factors}
 
-taxi_Fxdf <- RxXdfData(file.path(data_path, "taxiXdfFactors"),
-                       fileSystem = hdfsFS)
-
-
-taxiTip <- RxXdfData(file.path(data_path, "taxiTip"),
-                       fileSystem = hdfsFS)
-
-rxDataStep(inData = taxi_Fxdf,
-           outFile = taxiTip,
-           transforms = list(goodTip = factor(ifelse(good_tip == 1, "good", "bad"), levels = c("good", "bad"))))
-
-rxFactors(inData = taxi_xdf, outFile = taxi_Fxdf, 
-          factorInfo = c("pickup_hour", "pickup_nhood", "good_tip")
-)
-
-system.time(linmod <- rxLinMod(tip_pct ~ pickup_nhood +  trip_distance, 
-                               data = taxi_Fxdf, cube = TRUE))
-
-
-
-
-system.time(dforest <- rxDForest(goodTip ~ pickup_nhood + pickup_hour + trip_distance, 
-                                 data = taxiTip, method = "class"))
-rxFactors(inData = taxi_xdf, outFile = taxi_Fxdf, 
-          factorInfo = c("pickup_hour", "pickup_nhood")
-)
-
 system.time(linmod <- rxLinMod(tip_pct ~ pickup_nhood +  trip_distance, 
                                data = taxi_xdf, cube = TRUE))
-
 ```
 
-Now let's try to run our model. We will use the `cube = TRUE` argument, which partitions the data across each category of the `pickup_nhood` variable. This results in significant speedups.
+Now let's try to train the model with an additional categorical variable. We will use the `cube = TRUE` argument, which partitions the data across each category of the `pickup_nhood` variable. This results in significant speedups.
 
 ```{r rx_lm}
 
 system.time(linmod <- rxLinMod(tip_pct ~ pickup_nhood + pickup_hour + trip_distance, 
-                               data = taxi_Fxdf, cube = TRUE))
+                               data = taxi_xdf, cube = TRUE))
 
+```
+
+## Creating Decision and Ensemble Trees
+
+
+```{r dtree}
+
+system.time(dtree <- rxDTree(good_tip ~ trip_distance + passenger_count,
+                             useSparseCube = TRUE,
+                             data = taxi_xdf, method = "class"))
+
+# plot(RevoTreeView::createTreeView(dtree))
+# 
+# system.time(dforest <- rxDForest(good_tip ~ pickup_nhood + pickup_hour + trip_distance,
+#                                  data = taxi_xdf, method = "class"))
+
+
+```
+
+## Publish to AzureML
+
+We can use the [`AzureML`](https://github.com/RevolutionAnalytics/AzureML) package to convert our trained model as an Azure API. You'll need to get your security credentials from [AzureML Studio](https://studio.azureml.net). Click on _Settings_, copy _Workspace ID_. Then click on _Authorization Tokens_ at the top header, and copy your _Primary Authorization Token_. 
+
+```{r azureml, eval = FALSE}
+packageVersion("AzureML")
+library(AzureML)
+ws <- workspace(
+  id = "----",
+  auth = "------" 
+)
+
+head(datasets(ws))
+AzureML::experiments(ws)
+```
+
+As of right now (March 2017), AzureML does not have `rx` functions from the `RevoScaleR` package. Therefore, we need to convert our `RevoScaleR` model into a model that GNU-R/MRO can understand. Fortunately, the `RevoScaleR` modeling functions have methods to convert `rx` models into CRAN equivalents:
+
+```{r rpart, eval = FALSE}
+
+rpartModel <- as.rpart(dtree)
+
+```
+
+Now let's create a scoring function: 
+
+```{r scorefn, eval = FALSE}
+
+scoringFn <- function(testdata) {
+ 
+  library(rpart)
+  predict(rpartModel, newdata = testdata)[, 1]
+  
+}
+```
+
+and let's copy into a data.frame a portion of our training data to use as our schema:
+
+
+```{r cols, eval=FALSE}
+
+library(dplyr)
+exampleDF <- head(taxi_xdf) %>% select(trip_distance, passenger_count)
+
+```
+
+Let's make sure our scoring function works locally first:
+
+```{r localscore, eval=FALSE}
+
+scoringFn(exampleDF)
+
+```
+
+
+We're ready to operationalize our model:
+
+
+```{r publish, eval=FALSE}
+
+endpoint <- publishWebService(ws, 
+                              fun = scoringFn,
+                              name = "Taxi-tip-rpart",
+                              inputSchema = exampleDF)
+
+```
+
+Let's try it out:
+
+
+```{r consume, eval=FALSE}
+
+
+scores <- consume(endpoint, exampleDF)
+head(scores)
 ```
 
