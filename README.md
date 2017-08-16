@@ -1,6 +1,6 @@
 # Microsoft R with Spark on HDInsight
 
-This is a one-day workshop on Using R Server on Spark. Student can find course modules as rmarkdown documents in the [Student-Resources]() directory. Instructions on how to deliver the course can be found in the [Instructor-Resources]() directory.
+This is a one-day workshop on Using R Server on Spark. Student can find course modules as rmarkdown documents in the [Student-Resources]() directory. Instructions on how to deliver the course can be found in the [Instructor-Resources]() directory. It is usually expected that the student has already completed the [Microsoft R for Data Science Course](https://github.com/Azure/LearnAnalytics-mr4ds).
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FLearnAnalytics-mrs-spark%2Fmaster%2FInstructor-Resources%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
@@ -21,6 +21,16 @@ This is a one-day workshop on Using R Server on Spark. Student can find course m
     ![Image of the cluster overview](https://raw.githubusercontent.com/Azure/SparkMLADS/master/imgs/cluster-overview.PNG)
 
 6.	Once in RStudio, go to the Files pane in the lower right-hand corner and click on "SparkMLADS" and then "Code". Here you will find the directories for the hands-on tutorial scripts.
+
+## Usage
+
+### Students
+
+The student resources can be found in the [Student Resources directory](https://github.com/Azure/LearnAnalytics-mrs-spark/tree/master/Student-Resources). In particular, you will probably use either the [Jupyter notebooks](https://github.com/Azure/LearnAnalytics-mrs-spark/tree/master/Student-Resources/notebooks) or the [RMarkdown notebooks](https://github.com/Azure/LearnAnalytics-mrs-spark/tree/master/Student-Resources/rmarkdown).
+
+### Instructors
+
+Resources for re-delivery can be found in the [Instructor Resources folder](https://github.com/Azure/LearnAnalytics-mrs-spark/tree/master/Instructor-Resources).
 
 ## Contributing
 
