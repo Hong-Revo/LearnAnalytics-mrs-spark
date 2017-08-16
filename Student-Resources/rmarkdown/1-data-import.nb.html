@@ -272,35 +272,17 @@ div.tocify {
 <!-- rnb-text-begin -->
 <div id="create-spark-context" class="section level1">
 <h1>Create Spark Context</h1>
-<p>In this session we will create a Spark Session using the <code>rxSparkConnect</code> function from the <code>RevoScaleR</code> package. This will a <code>scaleR</code> Spark Session and create some additional necessary paths for us. We can use the <code>RxHiveData</code> method to point to data that is in our Hive metastore. Moreover, we can run MRS functions directly against the Hive data.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIFN5cy5zZXRlbnYoU1BBUktfSE9NRSA9IFwiL3Vzci9oZHAvY3VycmVudC9zcGFyazItY2xpZW50XCIpXG5jYyA8LSByeFNwYXJrQ29ubmVjdCgpXG5oaXZlX3RibCA8LSBSeEhpdmVEYXRhKHRhYmxlID0gXCJoaXZlc2FtcGxldGFibGVcIixcbiAgICAgICAgICAgICAgICAgICAgICAgY29sSW5mbyA9IGxpc3QoY2xpZW50aWQgPSBsaXN0KHR5cGUgPSBcImludGVnZXJcIiksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHF1ZXJ5dGltZSA9IGxpc3QodHlwZSA9IFwiY2hhcmFjdGVyXCIpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXJrZXQgPSBsaXN0KHR5cGUgPSBcImZhY3RvclwiKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZGV2aWNlcGxhdGZvcm0gPSBsaXN0KHR5cGUgPSBcImZhY3RvclwiKSkpXG5yeEdldEluZm8oaGl2ZV90YmwsIGdldFZhckluZm8gPSBUUlVFKVxucnhTdW1tYXJ5KH5xdWVyeWR3ZWxsdGltZSwgZGF0YSA9IGhpdmVfdGJsKVxucnhTcGFya0Rpc2Nvbm5lY3QoKVxuYGBgIn0= -->
-<pre class="r"><code>
-# Sys.setenv(SPARK_HOME = &quot;/usr/hdp/current/spark2-client&quot;)
-cc &lt;- rxSparkConnect()
-hive_tbl &lt;- RxHiveData(table = &quot;hivesampletable&quot;,
-                       colInfo = list(clientid = list(type = &quot;integer&quot;),
-                                      querytime = list(type = &quot;character&quot;),
-                                      market = list(type = &quot;factor&quot;),
-                                      deviceplatform = list(type = &quot;factor&quot;)))
-rxGetInfo(hive_tbl, getVarInfo = TRUE)
-rxSummary(~querydwelltime, data = hive_tbl)
-rxSparkDisconnect()</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
 <div id="adding-sparklyr-interoperability" class="section level2">
 <h2>Adding <code>sparklyr</code> interoperability</h2>
-<p>We can next use the <code>interop</code> parameter to create a Spark session that can be shared by <code>sparklyr</code>.</p>
+<p>To start off, we will create a Spark Session using the <code>rxSparkConnect</code> function from the <code>RevoScaleR</code> package. This will a <code>scaleR</code> Spark Session and create some additional necessary paths for us. In order to use <code>sparklyr</code> and it’s related packages, we will use the <code>interop</code> parameter to create a Spark session that can be shared by <code>sparklyr</code> and Microsoft R Server. We will also use h2o and it’s related Sparkling Water R API, <code>rsparkling</code>, so we will load it as well.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3B0aW9ucyhyc3BhcmtsaW5nLnNwYXJrbGluZ3dhdGVyLnZlcnNpb24gPSBcIjIuMS4xXCIpXG5saWJyYXJ5KHJzcGFya2xpbmcpXG5saWJyYXJ5KHNwYXJrbHlyKVxubGlicmFyeShkcGx5cilcblxuYGBgIn0= -->
-<pre class="r"><code>options(rsparkling.sparklingwater.version = &quot;2.1.1&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTeXMuc2V0ZW52KFNQQVJLX0hPTUUgPSBcIi91c3IvaGRwL2N1cnJlbnQvc3BhcmsyLWNsaWVudFwiKVxub3B0aW9ucyhyc3BhcmtsaW5nLnNwYXJrbGluZ3dhdGVyLnZlcnNpb24gPSBcIjIuMS4xXCIpXG5saWJyYXJ5KHJzcGFya2xpbmcpXG5saWJyYXJ5KHNwYXJrbHlyKVxubGlicmFyeShkcGx5cilcbmBgYCJ9 -->
+<pre class="r"><code># Sys.setenv(SPARK_HOME = &quot;/usr/hdp/current/spark2-client&quot;)
+options(rsparkling.sparklingwater.version = &quot;2.1.1&quot;)
 library(rsparkling)
 library(sparklyr)
-library(dplyr)
-</code></pre>
+library(dplyr)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYZHBseXLigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnN0YXRz4oCZOlxuXG4gICAgZmlsdGVyLCBsYWdcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmJhc2XigJk6XG5cbiAgICBpbnRlcnNlY3QsIHNldGRpZmYsIHNldGVxdWFsLCB1bmlvblxuIn0= -->
 <pre><code>
@@ -323,8 +305,15 @@ The following objects are masked from ‘package:base’:
 <pre><code>No Spark applications can be reused. It may take 1 to 2 minutes to launch a new Spark application.
 The environment variable $SPARK_VERSION is not explicitly defined. The system detects a possible version '2.1.1.2.6.1.3-4', and attempts to use it to launch Spark application. Please provide $SPARK_VERSION if an alternative version is desired.</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2MgPC0gcnhHZXRTcGFya2x5ckNvbm5lY3Rpb24oY2MpXG5gYGAifQ== -->
-<pre class="r"><code>sc &lt;- rxGetSparklyrConnection(cc)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2MgPC0gcnhHZXRTcGFya2x5ckNvbm5lY3Rpb24oY2MpXG5zcmNfdGJscyhzYylcbmBgYCJ9 -->
+<pre class="r"><code>sc &lt;- rxGetSparklyrConnection(cc)
+src_tbls(sc)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiaGl2ZXNhbXBsZXRhYmxlXCJcbiJ9 -->
+<pre><code>[1] &quot;hivesampletable&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2FtcGxlX3RibCA8LSB0Ymwoc2MsIFwiaGl2ZXNhbXBsZXRhYmxlXCIpXG5gYGAifQ== -->
+<pre class="r"><code>sample_tbl &lt;- tbl(sc, &quot;hivesampletable&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -338,13 +327,6 @@ The environment variable $SPARK_VERSION is not explicitly defined. The system de
             numclients = n_distinct(clientid))
 ave_dwell %&gt;% collect</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6MywibnJvdyI6Nn0sInJkZiI6IlVrUllNZ3BZQ2dBQUFBSUFBd01EQUFJREFBQUFCQUlBQUFBQkFBUUFDUUFBQUFGNEFBQURFd0FBQUFNQUFBQVFBQUFBQmdBRUFBa0FBQUFKYVZCb2IyNWxJRTlUQUFRQUNRQUFBQVpTU1UwZ1QxTUFCQUFKQUFBQUIxVnVhMjV2ZDI0QUJBQUpBQUFBRjNCeWIzQnlhV1YwWVhKNUlHUmxkbVZzYjNCdFpXNTBBQVFBQ1FBQUFBMVhhVzVrYjNkeklGQm9iMjVsQUFRQUNRQUFBQWRCYm1SeWIybGtBQUFBRGdBQUFBWkE4UHdhTXowVzkwQm9QQllVWDM3ZVFGcDFoVDF0K2tCQUlPV2xaWCsybVVCRCtZWllKOEx5UUVkOUFZZG1rYVlBQUFBT0FBQUFCa0MxeHdBQUFBQUFRSlJNQUFBQUFBQkFaK0FBQUFBQUFEL3dBQUFBQUFBQVFJdEFBQUFBQUFCQXViTUFBQUFBQUFBQUJBSUFBQUFCQUFRQUNRQUFBQVZqYkdGemN3QUFBQkFBQUFBQkFBUUFDUUFBQUFwa1lYUmhMbVp5WVcxbEFBQUVBZ0FBQUFFQUJBQUpBQUFBQlc1aGJXVnpBQUFBRUFBQUFBTUFCQUFKQUFBQURtUmxkbWxqWlhCc1lYUm1iM0p0QUFRQUNRQUFBQWhoZG1Wa2QyVnNiQUFFQUFrQUFBQUtiblZ0WTJ4cFpXNTBjd0FBQkFJQUFBQUJBQVFBQ1FBQUFBbHliM2N1Ym1GdFpYTUFBQUFOQUFBQUFvQUFBQUQvLy8vNkFBQUEvZ0FBQkFJQUFBQUJBQVFBQ1FBQUFBZHZjSFJwYjI1ekFBQUNFd0FBQUFVQUFBQVFBQUFBQVFBRUFBa0FBQUFCY2dBQUFCQUFBQUFCQUFRQUNRQUFBQXBvYVhabFgzRjFaWEo1QUFBQUNnQUFBQUVBQUFBQUFBQUFEUUFBQUFFQUFBQUdBQUFBRFFBQUFBRUFBQUFEQUFBRUFnQUFBLzhBQUFBUUFBQUFCUUFFQUFrQUFBQUdaVzVuYVc1bEFBUUFDUUFBQUFWc1lXSmxiQUFFQUFrQUFBQU9jbTkzYm1GdFpYTXVjSEpwYm5RQUJBQUpBQUFBQ25KdmQzTXVkRzkwWVd3QUJBQUpBQUFBQ21OdmJITXVkRzkwWVd3QUFBRCtBQUFBL2c9PSJ9 -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["deviceplatform"],"name":[1],"type":["chr"],"align":["left"]},{"label":["avedwell"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["numclients"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"iPhone OS","2":"69569.637509","3":"5575"},{"1":"RIM OS","2":"193.877695","3":"1299"},{"1":"Unknown","2":"105.836257","3":"191"},{"1":"proprietary development","2":"8.448527","3":"1"},{"1":"Windows Phone","2":"39.949412","3":"872"},{"1":"Android","2":"46.976609","3":"6579"}],"options":{"columns":{"min":{},"max":[10],"total":[3]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -353,27 +335,6 @@ ave_dwell %&gt;% collect</code></pre>
 <h1>Download Sample Data</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucnhIYWRvb3BDb21tYW5kKFwiZnMgLWNhdCAvTllDVGF4aS9zYW1wbGUvdGF4aV9sYXJnZS5jc3YgfCBoZWFkXCIpXG5cbmBgYCJ9 -->
-<pre class="r"><code>rxHadoopCommand(&quot;fs -cat /NYCTaxi/sample/taxi_large.csv | head&quot;)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUGlja2VkIHVwIEpBVkFfVE9PTF9PUFRJT05TOiAtWHNzNG1cbmNhdDogVW5hYmxlIHRvIHdyaXRlIHRvIG91dHB1dCBzdHJlYW0uXG4ifQ== -->
-<pre><code>Picked up JAVA_TOOL_OPTIONS: -Xss4m
-cat: Unable to write to output stream.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXCJWZW5kb3JJRFwiLFwicGFzc2VuZ2VyX2NvdW50XCIsXCJ0cmlwX2Rpc3RhbmNlXCIsXCJSYXRlQ29kZUlEXCIsXCJzdG9yZV9hbmRfZndkX2ZsYWdcIixcInBheW1lbnRfdHlwZVwiLFwiZmFyZV9hbW91bnRcIixcInRpcF9hbW91bnRcIixcInRvbGxzX2Ftb3VudFwiLFwicGlja3VwX2hvdXJcIixcInBpY2t1cF9kb3dcIixcImRyb3BvZmZfaG91clwiLFwiZHJvcG9mZl9kb3dcIixcInBpY2t1cF9uaG9vZFwiLFwiZHJvcG9mZl9uaG9vZFwiLFwia1NwbGl0c1wiXG5cIjJcIiwxLDEuNTkwMDAwMCxcIjFcIixcIk5cIixcIjFcIiwxMi4wMDAwMDAwLDMuMjUwMDAwMCwwLjAwMDAwMDAsXCI2LTEwXCIsXCJUaHVcIixcIjYtMTBcIixcIlRodVwiLFwiR2FybWVudCBEaXN0cmljdFwiLFwiTXVycmF5IEhpbGxcIixcIkRcIlxuXCIxXCIsMSwzLjMwMDAwMDAsXCIxXCIsXCJOXCIsXCIxXCIsMTQuNTAwMDAwMCwyLjAwMDAwMDAsMC4wMDAwMDAwLFwiNi0xMFwiLFwiU2F0XCIsXCI2LTEwXCIsXCJTYXRcIixcIlNvaG9cIixcIkNsaW50b25cIixcIkdcIlxuXCIxXCIsMSwxLjgwMDAwMDAsXCIxXCIsXCJOXCIsXCIyXCIsOS41MDAwMDAwLDAuMDAwMDAwMCwwLjAwMDAwMDAsXCI2LTEwXCIsXCJTYXRcIixcIjYtMTBcIixcIlNhdFwiLFwiTW9ybmluZ3NpZGUgSGVpZ2h0c1wiLFwiSGFtaWx0b24gSGVpZ2h0c1wiLFwiQVwiXG5cIjFcIiwxLDAuNTAwMDAwMCxcIjFcIixcIk5cIixcIjJcIiwzLjUwMDAwMDAsMC4wMDAwMDAwLDAuMDAwMDAwMCxcIjYtMTBcIixcIlNhdFwiLFwiNi0xMFwiLFwiU2F0XCIsXCJUcmliZWNhXCIsXCJUcmliZWNhXCIsXCJCXCJcblwiMVwiLDEsMy4wMDAwMDAwLFwiMVwiLFwiTlwiLFwiMlwiLDE1LjAwMDAwMDAsMC4wMDAwMDAwLDAuMDAwMDAwMCxcIjYtMTBcIixcIlNhdFwiLFwiNi0xMFwiLFwiU2F0XCIsXCJNaWR0b3duXCIsXCJDaGVsc2VhXCIsXCJGXCJcblwiMVwiLDEsOS4wMDAwMDAwLFwiMVwiLFwiTlwiLFwiMVwiLDI3LjAwMDAwMDAsNi43MDAwMDAwLDUuMzMwMDAwMCxcIjYtMTBcIixcIlNhdFwiLFwiNi0xMFwiLFwiU2F0XCIsXCJOQVwiLFwiTWlkdG93blwiLFwiSVwiXG5cIjFcIiwxLDIuMjAwMDAwMCxcIjFcIixcIk5cIixcIjJcIiwxNC4wMDAwMDAwLDAuMDAwMDAwMCwwLjAwMDAwMDAsXCI2LTEwXCIsXCJTYXRcIixcIjYtMTBcIixcIlNhdFwiLFwiRWFzdCBWaWxsYWdlXCIsXCJHYXJtZW50IERpc3RyaWN0XCIsXCJKXCJcblwiMVwiLDMsMC44MDAwMDAwLFwiMVwiLFwiTlwiLFwiMVwiLDcuMDAwMDAwMCwxLjY2MDAwMDAsMC4wMDAwMDAwLFwiNi0xMFwiLFwiU2F0XCIsXCI2LTEwXCIsXCJTYXRcIixcIkdyZWVud2ljaCBWaWxsYWdlXCIsXCJHcmVlbndpY2ggVmlsbGFnZVwiLFwiR1wiXG5cIjFcIiwzLDE4LjIwMDAwMDAsXCIyXCIsXCJOXCIsXCIyXCIsNTIuMDAwMDAwMCwwLjAwMDAwMDAsNS4zMzAwMDAwLFwiNi0xMFwiLFwiU2F0XCIsXCI2LTEwXCIsXCJTYXRcIixcIk5BXCIsXCJNaWR0b3duXCIsXCJEXCJcblsxXSBUUlVFXG4ifQ== -->
-<pre><code>&quot;VendorID&quot;,&quot;passenger_count&quot;,&quot;trip_distance&quot;,&quot;RateCodeID&quot;,&quot;store_and_fwd_flag&quot;,&quot;payment_type&quot;,&quot;fare_amount&quot;,&quot;tip_amount&quot;,&quot;tolls_amount&quot;,&quot;pickup_hour&quot;,&quot;pickup_dow&quot;,&quot;dropoff_hour&quot;,&quot;dropoff_dow&quot;,&quot;pickup_nhood&quot;,&quot;dropoff_nhood&quot;,&quot;kSplits&quot;
-&quot;2&quot;,1,1.5900000,&quot;1&quot;,&quot;N&quot;,&quot;1&quot;,12.0000000,3.2500000,0.0000000,&quot;6-10&quot;,&quot;Thu&quot;,&quot;6-10&quot;,&quot;Thu&quot;,&quot;Garment District&quot;,&quot;Murray Hill&quot;,&quot;D&quot;
-&quot;1&quot;,1,3.3000000,&quot;1&quot;,&quot;N&quot;,&quot;1&quot;,14.5000000,2.0000000,0.0000000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;Soho&quot;,&quot;Clinton&quot;,&quot;G&quot;
-&quot;1&quot;,1,1.8000000,&quot;1&quot;,&quot;N&quot;,&quot;2&quot;,9.5000000,0.0000000,0.0000000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;Morningside Heights&quot;,&quot;Hamilton Heights&quot;,&quot;A&quot;
-&quot;1&quot;,1,0.5000000,&quot;1&quot;,&quot;N&quot;,&quot;2&quot;,3.5000000,0.0000000,0.0000000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;Tribeca&quot;,&quot;Tribeca&quot;,&quot;B&quot;
-&quot;1&quot;,1,3.0000000,&quot;1&quot;,&quot;N&quot;,&quot;2&quot;,15.0000000,0.0000000,0.0000000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;Midtown&quot;,&quot;Chelsea&quot;,&quot;F&quot;
-&quot;1&quot;,1,9.0000000,&quot;1&quot;,&quot;N&quot;,&quot;1&quot;,27.0000000,6.7000000,5.3300000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;NA&quot;,&quot;Midtown&quot;,&quot;I&quot;
-&quot;1&quot;,1,2.2000000,&quot;1&quot;,&quot;N&quot;,&quot;2&quot;,14.0000000,0.0000000,0.0000000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;East Village&quot;,&quot;Garment District&quot;,&quot;J&quot;
-&quot;1&quot;,3,0.8000000,&quot;1&quot;,&quot;N&quot;,&quot;1&quot;,7.0000000,1.6600000,0.0000000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;Greenwich Village&quot;,&quot;Greenwich Village&quot;,&quot;G&quot;
-&quot;1&quot;,3,18.2000000,&quot;2&quot;,&quot;N&quot;,&quot;2&quot;,52.0000000,0.0000000,5.3300000,&quot;6-10&quot;,&quot;Sat&quot;,&quot;6-10&quot;,&quot;Sat&quot;,&quot;NA&quot;,&quot;Midtown&quot;,&quot;D&quot;
-[1] TRUE</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Let’s also download the sample data that we can work with locally.</p>
@@ -398,15 +359,15 @@ taxi_df  &lt;- readRDS(gzcon(url(taxi_url)))
                        &quot;taxisample&quot;,
                        header = TRUE)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZ3JlcGwoXCJbYS16QS1aXSs6Ly9cIiwgcGF0aCkgOiBvYmplY3QgJ3dhc2JfdGF4aScgbm90IGZvdW5kXG4ifQ== -->
-<pre><code>Error in grepl(&quot;[a-zA-Z]+://&quot;, path) : object 'wasb_taxi' not found</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IGNvdWxkIG5vdCBmaW5kIGZ1bmN0aW9uIFwic3BhcmtfcmVhZF9jc3ZcIlxuIn0= -->
+<pre><code>Error: could not find function &quot;spark_read_csv&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ3JlYXRpbmcgU3BhcmsgU2Vzc2lvbnMiCm91dHB1dDogCiAgaHRtbF9ub3RlYm9vazoKICAgIHRvYzogdHJ1ZQogICAgdG9jX2RlcHRoOiAyCiAgICB0b2NfZmxvYXQ6IHRydWUKZWRpdG9yX29wdGlvbnM6IAogIGNodW5rX291dHB1dF90eXBlOiBpbmxpbmUKLS0tCgojIENyZWF0ZSBTcGFyayBDb250ZXh0CgpJbiB0aGlzIHNlc3Npb24gd2Ugd2lsbCBjcmVhdGUgYSBTcGFyayBTZXNzaW9uIHVzaW5nIHRoZSBgcnhTcGFya0Nvbm5lY3RgIGZ1bmN0aW9uIGZyb20gdGhlIGBSZXZvU2NhbGVSYCBwYWNrYWdlLiBUaGlzIHdpbGwgYSBgc2NhbGVSYCBTcGFyayBTZXNzaW9uIGFuZCBjcmVhdGUgc29tZSBhZGRpdGlvbmFsIG5lY2Vzc2FyeSBwYXRocyBmb3IgdXMuIFdlIGNhbiB1c2UgdGhlIGBSeEhpdmVEYXRhYCBtZXRob2QgdG8gcG9pbnQgdG8gZGF0YSB0aGF0IGlzIGluIG91ciBIaXZlIG1ldGFzdG9yZS4gTW9yZW92ZXIsIHdlIGNhbiBydW4gTVJTIGZ1bmN0aW9ucyBkaXJlY3RseSBhZ2FpbnN0IHRoZSBIaXZlIGRhdGEuCgpgYGB7ciBzcGFya19jb250ZXh0fQoKIyBTeXMuc2V0ZW52KFNQQVJLX0hPTUUgPSAiL3Vzci9oZHAvY3VycmVudC9zcGFyazItY2xpZW50IikKY2MgPC0gcnhTcGFya0Nvbm5lY3QoKQpoaXZlX3RibCA8LSBSeEhpdmVEYXRhKHRhYmxlID0gImhpdmVzYW1wbGV0YWJsZSIsCiAgICAgICAgICAgICAgICAgICAgICAgY29sSW5mbyA9IGxpc3QoY2xpZW50aWQgPSBsaXN0KHR5cGUgPSAiaW50ZWdlciIpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHF1ZXJ5dGltZSA9IGxpc3QodHlwZSA9ICJjaGFyYWN0ZXIiKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXJrZXQgPSBsaXN0KHR5cGUgPSAiZmFjdG9yIiksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZGV2aWNlcGxhdGZvcm0gPSBsaXN0KHR5cGUgPSAiZmFjdG9yIikpKQpyeEdldEluZm8oaGl2ZV90YmwsIGdldFZhckluZm8gPSBUUlVFKQpyeFN1bW1hcnkofnF1ZXJ5ZHdlbGx0aW1lLCBkYXRhID0gaGl2ZV90YmwpCnJ4U3BhcmtEaXNjb25uZWN0KCkKYGBgCgoKIyMgQWRkaW5nIGBzcGFya2x5cmAgaW50ZXJvcGVyYWJpbGl0eQoKV2UgY2FuIG5leHQgdXNlIHRoZSBgaW50ZXJvcGAgcGFyYW1ldGVyIHRvIGNyZWF0ZSBhIFNwYXJrIHNlc3Npb24gdGhhdCBjYW4gYmUgc2hhcmVkIGJ5IGBzcGFya2x5cmAuCgpgYGB7ciBpbnRlcm9wfQoKb3B0aW9ucyhyc3BhcmtsaW5nLnNwYXJrbGluZ3dhdGVyLnZlcnNpb24gPSAiMi4xLjEiKQpsaWJyYXJ5KHJzcGFya2xpbmcpCmxpYnJhcnkoc3BhcmtseXIpCmxpYnJhcnkoZHBseXIpCmNjIDwtIHJ4U3BhcmtDb25uZWN0KGludGVyb3AgPSAic3BhcmtseXIiLAogICAgICAgICAgICAgICAgICAgICBleHRyYVNwYXJrQ29uZmlnID0gIi0tY29uZiBzcGFyay5keW5hbWljQWxsb2NhdGlvbi5lbmFibGVkPWZhbHNlIiwKICAgICAgICAgICAgICAgICAgICAgY29uc29sZU91dHB1dCA9IFRSVUUpCnNjIDwtIHJ4R2V0U3BhcmtseXJDb25uZWN0aW9uKGNjKQoKc3JjX3RibHMoc2MpCnNhbXBsZV90YmwgPC0gdGJsKHNjLCAiaGl2ZXNhbXBsZXRhYmxlIikKCmBgYAoKTm93IHdlIGNhbiB1c2Ugb3VyIGZhdm9yaXRlIGBkcGx5cmAgbWV0aG9kcyB3aXRoIFNwYXJrIFNRTCB0byBxdWVyeSBvdXIgU3BhcmsgRGF0YUZyYW1lcyBhbmQgSGl2ZSBjYXRhbG9nLgoKYGBge3IgaGl2ZV9xdWVyeX0KYXZlX2R3ZWxsIDwtIHNhbXBsZV90YmwgJT4lIAogIGdyb3VwX2J5KGRldmljZXBsYXRmb3JtKSAlPiUgCiAgc3VtbWFyaXNlKGF2ZWR3ZWxsID0gbWVhbihxdWVyeWR3ZWxsdGltZSksCiAgICAgICAgICAgIG51bWNsaWVudHMgPSBuX2Rpc3RpbmN0KGNsaWVudGlkKSkKYXZlX2R3ZWxsICU+JSBjb2xsZWN0CmBgYAoKCgojIERvd25sb2FkIFNhbXBsZSBEYXRhIAoKYGBge3IgZG93bmxvYWRfZGF0YX0KCiMgZG93bmxvYWQuZmlsZSgiaHR0cHM6Ly9hbGl6YWlkaS5ibG9iLmNvcmUud2luZG93cy5uZXQvdHJhaW5pbmcvc2FtcGxlX3RheGkuY3N2IiwgInNhbXBsZV90YXhpLmNzdiIpCiMgb3IgdGhlIGxhcmdlciBkYXRhIQpkb3dubG9hZC5maWxlKCJodHRwOi8vYWxpemFpZGkuYmxvYi5jb3JlLndpbmRvd3MubmV0L3RyYWluaW5nL3RheGlfbGFyZ2UuY3N2IiwgInRheGlfbGFyZ2UuY3N2IikKCndhc2JfdGF4aSA8LSAiL05ZQ1RheGkvc2FtcGxlIgpyeEhhZG9vcExpc3RGaWxlcygiLyIpCnJ4SGFkb29wTWFrZURpcih3YXNiX3RheGkpCnJ4SGFkb29wQ29weUZyb21Mb2NhbCgidGF4aV9sYXJnZS5jc3YiLCB3YXNiX3RheGkpCnJ4SGFkb29wQ29tbWFuZCgiZnMgLWNhdCAvTllDVGF4aS9zYW1wbGUvdGF4aV9sYXJnZS5jc3YgfCBoZWFkIikKCgpgYGAKCkxldCdzIGFsc28gZG93bmxvYWQgdGhlIHNhbXBsZSBkYXRhIHRoYXQgd2UgY2FuIHdvcmsgd2l0aCBsb2NhbGx5LgoKYGBge3IgZG93bmxvYWRfc2FtcGxlfQp0YXhpX3VybCA8LSAiaHR0cDovL2FsaXphaWRpLmJsb2IuY29yZS53aW5kb3dzLm5ldC90cmFpbmluZy90cmFpbmluZ0RhdGEvbWFuaGF0dGFuX2RmLnJkcyIKdGF4aV9kZiAgPC0gcmVhZFJEUyhnemNvbih1cmwodGF4aV91cmwpKSkKKHRheGlfZGYgPC0gdGJsX2RmKHRheGlfZGYpKQpgYGAKCgojIEltcG9ydCBEYXRhCgpUbyBpbXBvcnQgZGF0YSBmcm9tIGNzdiBmaWxlcywgd2UgY2FuIHVzZSB0aGUgYHNwYXJrX3JlYWRfY3N2YCBmdW5jdGlvbiwgd2hpY2ggaXMgYmFzaWNhbGx5IGEgd3JhcHBlciBmb3IgdGhlIGByZWFkLmRmYCBmdW5jdGlvbiB1c2luZyB0aGUgX19kYXRhYnJpY2tzLnNwYXJrLmNzdl9fIHBhY2thZ2UuCgpgYGB7ciBpbXBvcnRfY3N2fQoKdGF4aSA8LSBzcGFya19yZWFkX2NzdihzYywKICAgICAgICAgICAgICAgICAgICAgICBwYXRoID0gd2FzYl90YXhpLAogICAgICAgICAgICAgICAgICAgICAgICJ0YXhpc2FtcGxlIiwKICAgICAgICAgICAgICAgICAgICAgICBoZWFkZXIgPSBUUlVFKQoKYGBgCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ3JlYXRpbmcgU3BhcmsgU2Vzc2lvbnMiCm91dHB1dDogCiAgaHRtbF9ub3RlYm9vazoKICAgIHRvYzogdHJ1ZQogICAgdG9jX2RlcHRoOiAyCiAgICB0b2NfZmxvYXQ6IHRydWUKZWRpdG9yX29wdGlvbnM6IAogIGNodW5rX291dHB1dF90eXBlOiBpbmxpbmUKLS0tCgojIENyZWF0ZSBTcGFyayBDb250ZXh0CgojIyBBZGRpbmcgYHNwYXJrbHlyYCBpbnRlcm9wZXJhYmlsaXR5CgpUbyBzdGFydCBvZmYsIHdlIHdpbGwgY3JlYXRlIGEgU3BhcmsgU2Vzc2lvbiB1c2luZyB0aGUgYHJ4U3BhcmtDb25uZWN0YCBmdW5jdGlvbiBmcm9tIHRoZSBgUmV2b1NjYWxlUmAgcGFja2FnZS4gVGhpcyB3aWxsIGEgYHNjYWxlUmAgU3BhcmsgU2Vzc2lvbiBhbmQgY3JlYXRlIHNvbWUgYWRkaXRpb25hbCBuZWNlc3NhcnkgcGF0aHMgZm9yIHVzLiBJbiBvcmRlciB0byB1c2UgYHNwYXJrbHlyYCBhbmQgaXQncyByZWxhdGVkIHBhY2thZ2VzLCB3ZSB3aWxsIHVzZSB0aGUgYGludGVyb3BgIHBhcmFtZXRlciB0byBjcmVhdGUgYSBTcGFyayBzZXNzaW9uIHRoYXQgY2FuIGJlIHNoYXJlZCBieSBgc3BhcmtseXJgIGFuZCBNaWNyb3NvZnQgUiBTZXJ2ZXIuIFdlIHdpbGwgYWxzbyB1c2UgaDJvIGFuZCBpdCdzIHJlbGF0ZWQgU3BhcmtsaW5nIFdhdGVyIFIgQVBJLCBgcnNwYXJrbGluZ2AsIHNvIHdlIHdpbGwgbG9hZCBpdCBhcyB3ZWxsLgoKYGBge3IgaW50ZXJvcH0KIyBTeXMuc2V0ZW52KFNQQVJLX0hPTUUgPSAiL3Vzci9oZHAvY3VycmVudC9zcGFyazItY2xpZW50IikKb3B0aW9ucyhyc3BhcmtsaW5nLnNwYXJrbGluZ3dhdGVyLnZlcnNpb24gPSAiMi4xLjEiKQpsaWJyYXJ5KHJzcGFya2xpbmcpCmxpYnJhcnkoc3BhcmtseXIpCmxpYnJhcnkoZHBseXIpCmNjIDwtIHJ4U3BhcmtDb25uZWN0KGludGVyb3AgPSAic3BhcmtseXIiLAogICAgICAgICAgICAgICAgICAgICBleHRyYVNwYXJrQ29uZmlnID0gIi0tY29uZiBzcGFyay5keW5hbWljQWxsb2NhdGlvbi5lbmFibGVkPWZhbHNlIiwKICAgICAgICAgICAgICAgICAgICAgY29uc29sZU91dHB1dCA9IFRSVUUpCnNjIDwtIHJ4R2V0U3BhcmtseXJDb25uZWN0aW9uKGNjKQoKc3JjX3RibHMoc2MpCnNhbXBsZV90YmwgPC0gdGJsKHNjLCAiaGl2ZXNhbXBsZXRhYmxlIikKCmBgYAoKTm93IHdlIGNhbiB1c2Ugb3VyIGZhdm9yaXRlIGBkcGx5cmAgbWV0aG9kcyB3aXRoIFNwYXJrIFNRTCB0byBxdWVyeSBvdXIgU3BhcmsgRGF0YUZyYW1lcyBhbmQgSGl2ZSBjYXRhbG9nLgoKYGBge3IgaGl2ZV9xdWVyeX0KYXZlX2R3ZWxsIDwtIHNhbXBsZV90YmwgJT4lIAogIGdyb3VwX2J5KGRldmljZXBsYXRmb3JtKSAlPiUgCiAgc3VtbWFyaXNlKGF2ZWR3ZWxsID0gbWVhbihxdWVyeWR3ZWxsdGltZSksCiAgICAgICAgICAgIG51bWNsaWVudHMgPSBuX2Rpc3RpbmN0KGNsaWVudGlkKSkKYXZlX2R3ZWxsICU+JSBjb2xsZWN0CmBgYAoKCgojIERvd25sb2FkIFNhbXBsZSBEYXRhIAoKYGBge3IgZG93bmxvYWRfZGF0YX0KCiMgZG93bmxvYWQuZmlsZSgiaHR0cHM6Ly9hbGl6YWlkaS5ibG9iLmNvcmUud2luZG93cy5uZXQvdHJhaW5pbmcvc2FtcGxlX3RheGkuY3N2IiwgInNhbXBsZV90YXhpLmNzdiIpCiMgb3IgdGhlIGxhcmdlciBkYXRhIQpkb3dubG9hZC5maWxlKCJodHRwOi8vYWxpemFpZGkuYmxvYi5jb3JlLndpbmRvd3MubmV0L3RyYWluaW5nL3RheGlfbGFyZ2UuY3N2IiwgInRheGlfbGFyZ2UuY3N2IikKCndhc2JfdGF4aSA8LSAiL05ZQ1RheGkvc2FtcGxlIgpyeEhhZG9vcExpc3RGaWxlcygiLyIpCnJ4SGFkb29wTWFrZURpcih3YXNiX3RheGkpCnJ4SGFkb29wQ29weUZyb21Mb2NhbCgidGF4aV9sYXJnZS5jc3YiLCB3YXNiX3RheGkpCnJ4SGFkb29wQ29tbWFuZCgiZnMgLWNhdCAvTllDVGF4aS9zYW1wbGUvdGF4aV9sYXJnZS5jc3YgfCBoZWFkIikKCgpgYGAKCkxldCdzIGFsc28gZG93bmxvYWQgdGhlIHNhbXBsZSBkYXRhIHRoYXQgd2UgY2FuIHdvcmsgd2l0aCBsb2NhbGx5LgoKYGBge3IgZG93bmxvYWRfc2FtcGxlfQp0YXhpX3VybCA8LSAiaHR0cDovL2FsaXphaWRpLmJsb2IuY29yZS53aW5kb3dzLm5ldC90cmFpbmluZy90cmFpbmluZ0RhdGEvbWFuaGF0dGFuX2RmLnJkcyIKdGF4aV9kZiAgPC0gcmVhZFJEUyhnemNvbih1cmwodGF4aV91cmwpKSkKKHRheGlfZGYgPC0gdGJsX2RmKHRheGlfZGYpKQpgYGAKCgojIEltcG9ydCBEYXRhCgpUbyBpbXBvcnQgZGF0YSBmcm9tIGNzdiBmaWxlcywgd2UgY2FuIHVzZSB0aGUgYHNwYXJrX3JlYWRfY3N2YCBmdW5jdGlvbiwgd2hpY2ggaXMgYmFzaWNhbGx5IGEgd3JhcHBlciBmb3IgdGhlIGByZWFkLmRmYCBmdW5jdGlvbiB1c2luZyB0aGUgX19kYXRhYnJpY2tzLnNwYXJrLmNzdl9fIHBhY2thZ2UuCgpgYGB7ciBpbXBvcnRfY3N2fQoKdGF4aSA8LSBzcGFya19yZWFkX2NzdihzYywKICAgICAgICAgICAgICAgICAgICAgICBwYXRoID0gd2FzYl90YXhpLAogICAgICAgICAgICAgICAgICAgICAgICJ0YXhpc2FtcGxlIiwKICAgICAgICAgICAgICAgICAgICAgICBoZWFkZXIgPSBUUlVFKQoKYGBgCgo=</div>
 
 
 </div>
