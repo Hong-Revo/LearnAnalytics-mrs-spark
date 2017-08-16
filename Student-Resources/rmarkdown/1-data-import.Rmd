@@ -15,7 +15,7 @@ In this session we will create a Spark Session using the `rxSparkConnect` functi
 
 ```{r spark_context}
 
-Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
+# Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
 cc <- rxSparkConnect()
 hive_tbl <- RxHiveData(table = "hivesampletable",
                        colInfo = list(clientid = list(type = "integer"),
@@ -34,9 +34,12 @@ We can next use the `interop` parameter to create a Spark session that can be sh
 
 ```{r interop}
 
+options(rsparkling.sparklingwater.version = "2.1.1")
+library(rsparkling)
 library(sparklyr)
 library(dplyr)
 cc <- rxSparkConnect(interop = "sparklyr",
+                     extraSparkConfig = "--conf spark.dynamicAllocation.enabled=false",
                      consoleOutput = TRUE)
 sc <- rxGetSparklyrConnection(cc)
 
@@ -93,7 +96,6 @@ taxi <- spark_read_csv(sc,
                        path = wasb_taxi,
                        "taxisample",
                        header = TRUE)
-
 
 ```
 
