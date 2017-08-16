@@ -46,3 +46,6 @@ h2ologs/
 # temporarily ignore file
 6-Livy-Sparklyr.*
 .Rproj.user
+
+# ignore etc dir
+etc/
