@@ -1,12 +1,24 @@
+---
+title: "Installing Package Dependencies"
+output: 
+  html_notebook:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+
 # Updating CRAN Mirror
 
-Before we install the packages, let's make sure we are pulling from a recent mirror of CRAN. By default MRS pulls from an old version of CRAN, usually around the time that version of MRS was released.
+Before we install the packages we'll need for this course, let's make sure we are pulling from a recent mirror of CRAN. By default MRS points to an old "snapshot" of CRAN, usually around the time that version of MRS was built, tested and released.
 
 ```{r update_repos}
 
-r <- getOption('repos')
+r <- getOption("repos")
 # set mirror to something a bit more recent
-r["CRAN"] <- "https://mran.revolutionanalytics.com/snapshot/2017-05-19/"
+r["CRAN"] <- "https://mran.revolutionanalytics.com/snapshot/2017-08-15/"
 options(repos = r)
 
 
@@ -15,48 +27,68 @@ options(repos = r)
 
 # Install magrittr and ggplot2 
 
-We'll install some familiar packages
+We'll install some familiar packages:
 
 ```{r gg_pipe}
 
-install.packages('magrittr')
-install.packages('ggplot2')
-install.packages('rmarkdown')
-install.packages('knitr')
+pkgs_install <- c("tidyverse", "rmarkdown", "knitr")
+install.packages(pkgs_install)
 
 ```
 
 
+# Install curl and httr for devtools
 
-# Install curl and gnutls for devtools
-
-We'll need a couple of packages that are not yet avaialable on CRAN, but are available as a development release on github..
+We'll need a couple of packages that are not yet avaialable on CRAN, but are available as a development release on github. To do so, we'll use the `devtools::install_github` function.
 
 ```{r devtools_install}
-# 
-# system("sudo apt-get -y build-dep libcurl4-gnutls-dev")
-# system("sudo apt-get -y install libcurl4-gnutls-dev")
-# system("sudo ln -s /bin/tar /bin/gtar")
-# install.packages('devtools')
+
+dev_deps <- c("httr", "curl", "devtools")
+install.packages(dev_deps)
 
 ```
 
+# Install sparklyr packages 
 
-
-# Install sparkapi and sparklyr packages 
+Let's install `sparklyr`, `dplyrXdf` and `sparklyrgrpahs`. The version of `sparklyr` as of this writing is 0.7.0.9, which is the version we'll use.
 
 ```{r git_install}
 
 
-install.packages('sparklyr')
+# install.packages("sparklyr")
 install.packages("plotly")
 
-# devtools::isntall_github("rstudio/htmltools")
-# devtools::install_github("rstudio/rmarkdown")
-# devtools::install_github("rstudio/sparklyr")
-# devtools::install_github("hadley/purrr")
-# devtools::install_github('ropensci/plotly')
-# devtools::install_github('yihui/knitr')
+devtools::install_github("tidyverse/dplyr")
+devtools::install_github("rstudio/sparklyr")
+devtools::install_github("h2oai/rsparkling", ref = "master")
+devtools::install_github("RevolutionAnalytics/dplyrXdf")
+devtools::install_github("kevinykuo/sparklygraphs")
 
+```
+
+# Install h2o Sparkling Water
+
+
+```{r h2o}
+if ("package:h2o" %in% search()) { detach("package:h2o", unload=TRUE) }
+if ("h2o" %in% rownames(installed.packages())) { remove.packages("h2o") }
+
+pkgs <- c("methods","statmod","stats","graphics","RCurl","jsonlite","tools","utils")
+for (pkg in pkgs) {
+    if (! (pkg %in% rownames(installed.packages()))) { install.packages(pkg) }
+}
+
+## Check your needed h2o version
+## https://github.com/h2oai/rsparkling#install-h2o
+# rsparkling::h2o_release_table()
+
+install.packages("h2o", type="source", repos=(c("http://h2o-release.s3.amazonaws.com/h2o/rel-ueno/2/R")))
+# install.packages("h2o", 
+                 # type = "source", 
+                 # repos = "http://h2o-release.s3.amazonaws.com/h2o/rel-vajda/4/R")
+
+# install.packages("rsparkling")
+devtools::install_github("h2oai/rsparkling", ref = "master")
+options(rsparkling.sparklingwater.version = "2.1.1")
 ```
 
