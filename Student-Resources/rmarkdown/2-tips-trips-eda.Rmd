@@ -70,7 +70,6 @@ tile_plot_hood <- function(df = taxi_hood_sum()) {
   return(gplot)
 }
 
-
 ```
 
 

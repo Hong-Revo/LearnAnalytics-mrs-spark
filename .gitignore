@@ -40,5 +40,12 @@ vignettes/*.pdf
 derby.log
 metastore_db/
 
+# h2ologs
+h2ologs/
+
 # temporarily ignore file
 6-Livy-Sparklyr.*
+.Rproj.user
+
+# ignore etc dir
+etc/

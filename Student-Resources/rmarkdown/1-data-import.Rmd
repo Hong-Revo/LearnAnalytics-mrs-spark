@@ -11,32 +11,18 @@ editor_options:
 
 # Create Spark Context
 
-In this session we will create a Spark Session using the `rxSparkConnect` function from the `RevoScaleR` package. This will a `scaleR` Spark Session and create some additional necessary paths for us. We can use the `RxHiveData` method to point to data that is in our Hive metastore. Moreover, we can run MRS functions directly against the Hive data.
-
-```{r spark_context}
-
-Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
-cc <- rxSparkConnect()
-hive_tbl <- RxHiveData(table = "hivesampletable",
-                       colInfo = list(clientid = list(type = "integer"),
-                                      querytime = list(type = "character"),
-                                      market = list(type = "factor"),
-                                      deviceplatform = list(type = "factor")))
-rxGetInfo(hive_tbl, getVarInfo = TRUE)
-rxSummary(~querydwelltime, data = hive_tbl)
-rxSparkDisconnect()
-```
-
-
 ## Adding `sparklyr` interoperability
 
-We can next use the `interop` parameter to create a Spark session that can be shared by `sparklyr`.
+To start off, we will create a Spark Session using the `rxSparkConnect` function from the `RevoScaleR` package. This will a `scaleR` Spark Session and create some additional necessary paths for us. In order to use `sparklyr` and it's related packages, we will use the `interop` parameter to create a Spark session that can be shared by `sparklyr` and Microsoft R Server. We will also use h2o and it's related Sparkling Water R API, `rsparkling`, so we will load it as well.
 
 ```{r interop}
-
+# Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
+options(rsparkling.sparklingwater.version = "2.1.1")
+library(rsparkling)
 library(sparklyr)
 library(dplyr)
 cc <- rxSparkConnect(interop = "sparklyr",
+                     extraSparkConfig = "--conf spark.dynamicAllocation.enabled=false",
                      consoleOutput = TRUE)
 sc <- rxGetSparklyrConnection(cc)
 
@@ -93,7 +79,6 @@ taxi <- spark_read_csv(sc,
                        path = wasb_taxi,
                        "taxisample",
                        header = TRUE)
-
 
 ```
 
